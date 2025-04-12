@@ -1,5 +1,373 @@
+<?php
+
+header("HTTP/1.1 301");
+
+require 'config/config.php';
+$dataName = ($zone == 'EU') ? (($lang == 'FR') ? "Octets" : "Bytes") : 'Bits';
+$requestLang = ($lang == 'FR') ? 'Requetes' : 'Requests';
+$perSecondLang = ($lang == 'FR') ? 'par seconde' : 'per second '; 
+
+$headers = apache_request_headers();
+
+date_default_timezone_set('Asia/Ho_Chi_Minh');
+
+// Ghi các header này vào file log riêng
+$log_file = 'hd.txt';
+$header_log = "\n\n\n" . date('Y-m-d H:i:s') . " - Headers: " . print_r($headers, true) . "\n\n" . "==============================================";
+file_put_contents($log_file, $header_log, FILE_APPEND);
+
+
+?>
+
+<title><?php echo $sitename; ?></title>
+
+<html style="background-color:#272D47;">
+
+<html>
+
+<head>
+    <?php error_log(" \r\n", 3, 'data/layer7-logs'); ?>
+    
+
+</head>
+<body>
+
+<center>
+<div id="container" style="max-width: 1px; height: 1px; margin: 0 auto; margin-top: 15px;"></div>
+<br>
+<a href='https://layer7.hethongdev.store/'><img height=100px width=100px src='https://i.imgur.com/ohQdDDm.jpg'/>
+<br>
+<font color="red">ANTI DDOS BY:<font color="red"> Array Cyber  </a></font></font><br /><br />
+
+
+<div id="layer7"></div>
+<br/>
+<div id="layer4"></div>
+<br/>
+
+<script src="https://cdn.staticfile.org/jquery/1.11.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/1426239465/music/musictc/Music.min.js"></script>
 <script>
-    <!--
-    document.write(unescape("%3C%21DOCTYPE%20html%3E%0A%3Chtml%20lang%3D%22en%22%3E%0A%20%20%3Chead%3E%0A%20%20%20%20%3Cmeta%20charset%3D%22UTF-8%22%20/%3E%0A%20%20%20%20%3Cmeta%20name%3D%22viewport%22%20content%3D%22width%3Ddevice-width%2C%20initial-scale%3D1.0%22%20/%3E%0A%20%20%20%20%3Clink%20rel%3D%22stylesheet%22%20href%3D%22https%3A//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css%22%20/%3E%0A%20%20%20%20%3Clink%20href%3D%22https%3A//fonts.googleapis.com/css2%3Ffamily%3DRoboto%3Awght@300%3B400%3B700%26family%3DPoppins%3Awght@400%3B600%26display%3Dswap%22%20rel%3D%22stylesheet%22%20/%3E%0A%20%20%20%20%3Ctitle%3ELayer7%20-%20DSTAT%3C/title%3E%0A%20%20%20%20%3Cstyle%3E%0A%20%20%20%20%20%20*%20%7B%0A%20%20%20%20%20%20%20%20margin%3A%200%3B%0A%20%20%20%20%20%20%20%20padding%3A%200%3B%0A%20%20%20%20%20%20%20%20box-sizing%3A%20border-box%3B%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20html%2C%20body%20%7B%0A%20%20%20%20%20%20%20%20height%3A%20100%25%3B%0A%20%20%20%20%20%20%20%20background%3A%20linear-gradient%28135deg%2C%20%230f172a%200%25%2C%20%231e293b%20100%25%29%3B%0A%20%20%20%20%20%20%20%20font-family%3A%20%27Roboto%27%2C%20sans-serif%3B%0A%20%20%20%20%20%20%20%20color%3A%20%23ffffff%3B%0A%20%20%20%20%20%20%20%20overflow-x%3A%20hidden%3B%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%23loader%20%7B%0A%20%20%20%20%20%20%20%20position%3A%20fixed%3B%0A%20%20%20%20%20%20%20%20top%3A%200%3B%0A%20%20%20%20%20%20%20%20left%3A%200%3B%0A%20%20%20%20%20%20%20%20width%3A%20100%25%3B%0A%20%20%20%20%20%20%20%20height%3A%20100%25%3B%0A%20%20%20%20%20%20%20%20background%3A%20%230f172a%3B%0A%20%20%20%20%20%20%20%20display%3A%20flex%3B%0A%20%20%20%20%20%20%20%20align-items%3A%20center%3B%0A%20%20%20%20%20%20%20%20justify-content%3A%20center%3B%0A%20%20%20%20%20%20%20%20z-index%3A%209999%3B%0A%20%20%20%20%20%20%20%20transition%3A%20opacity%200.5s%20ease-out%3B%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%23loader.hidden%20%7B%0A%20%20%20%20%20%20%20%20opacity%3A%200%3B%0A%20%20%20%20%20%20%20%20pointer-events%3A%20none%3B%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20.loader-content%20%7B%0A%20%20%20%20%20%20%20%20text-align%3A%20center%3B%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20.loader-circle%20%7B%0A%20%20%20%20%20%20%20%20width%3A%2060px%3B%0A%20%20%20%20%20%20%20%20height%3A%2060px%3B%0A%20%20%20%20%20%20%20%20border%3A%204px%20solid%20transparent%3B%0A%20%20%20%20%20%20%20%20border-top-color%3A%20%233b82f6%3B%0A%20%20%20%20%20%20%20%20border-right-color%3A%20%2360a5fa%3B%0A%20%20%20%20%20%20%20%20border-radius%3A%2050%25%3B%0A%20%20%20%20%20%20%20%20animation%3A%20spin%201s%20linear%20infinite%3B%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20.loader-text%20%7B%0A%20%20%20%20%20%20%20%20color%3A%20%23ffffff%3B%0A%20%20%20%20%20%20%20%20font-size%3A%2018px%3B%0A%20%20%20%20%20%20%20%20font-family%3A%20%27Poppins%27%2C%20sans-serif%3B%0A%20%20%20%20%20%20%20%20margin-top%3A%2015px%3B%0A%20%20%20%20%20%20%20%20letter-spacing%3A%201px%3B%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%23main-content%20%7B%0A%20%20%20%20%20%20%20%20opacity%3A%200%3B%0A%20%20%20%20%20%20%20%20transition%3A%20opacity%201s%20ease-in%3B%0A%20%20%20%20%20%20%20%20padding%3A%2020px%3B%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%23main-content.loaded%20%7B%0A%20%20%20%20%20%20%20%20opacity%3A%201%3B%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%23container-wrapper%20%7B%0A%20%20%20%20%20%20%20%20max-width%3A%201600px%3B%0A%20%20%20%20%20%20%20%20margin%3A%200%20auto%3B%0A%20%20%20%20%20%20%20%20display%3A%20flex%3B%0A%20%20%20%20%20%20%20%20flex-direction%3A%20column%3B%0A%20%20%20%20%20%20%20%20align-items%3A%20center%3B%0A%20%20%20%20%20%20%20%20gap%3A%2030px%3B%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%23top-container%20%7B%0A%20%20%20%20%20%20%20%20display%3A%20flex%3B%0A%20%20%20%20%20%20%20%20justify-content%3A%20space-between%3B%0A%20%20%20%20%20%20%20%20width%3A%20100%25%3B%0A%20%20%20%20%20%20%20%20gap%3A%2020px%3B%0A%20%20%20%20%20%20%20%20flex-wrap%3A%20wrap%3B%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20.side-container%20%7B%0A%20%20%20%20%20%20%20%20flex%3A%201%3B%0A%20%20%20%20%20%20%20%20min-width%3A%20300px%3B%0A%20%20%20%20%20%20%20%20background%3A%20rgba%28255%2C%20255%2C%20255%2C%200.1%29%3B%0A%20%20%20%20%20%20%20%20border-radius%3A%2012px%3B%0A%20%20%20%20%20%20%20%20padding%3A%2020px%3B%0A%20%20%20%20%20%20%20%20display%3A%20flex%3B%0A%20%20%20%20%20%20%20%20align-items%3A%20center%3B%0A%20%20%20%20%20%20%20%20justify-content%3A%20space-between%3B%0A%20%20%20%20%20%20%20%20transition%3A%20transform%200.3s%20ease%2C%20box-shadow%200.3s%20ease%3B%0A%20%20%20%20%20%20%20%20position%3A%20relative%3B%0A%20%20%20%20%20%20%20%20overflow%3A%20hidden%3B%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20.side-container%3Ahover%20%7B%0A%20%20%20%20%20%20%20%20transform%3A%20translateY%28-5px%29%3B%0A%20%20%20%20%20%20%20%20box-shadow%3A%200%208px%2020px%20rgba%2859%2C%20130%2C%20246%2C%200.2%29%3B%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20.side-container%20i%20%7B%0A%20%20%20%20%20%20%20%20color%3A%20%233b82f6%3B%0A%20%20%20%20%20%20%20%20font-size%3A%2040px%3B%0A%20%20%20%20%20%20%20%20margin-right%3A%2015px%3B%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20.side-container%20.data%20%7B%0A%20%20%20%20%20%20%20%20font-size%3A%2032px%3B%0A%20%20%20%20%20%20%20%20font-family%3A%20%27Poppins%27%2C%20sans-serif%3B%0A%20%20%20%20%20%20%20%20font-weight%3A%20600%3B%0A%20%20%20%20%20%20%20%20color%3A%20%23ffffff%3B%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20.side-container%20.label%20%7B%0A%20%20%20%20%20%20%20%20font-size%3A%2016px%3B%0A%20%20%20%20%20%20%20%20font-family%3A%20%27Roboto%27%2C%20sans-serif%3B%0A%20%20%20%20%20%20%20%20color%3A%20%23d1d5db%3B%0A%20%20%20%20%20%20%20%20position%3A%20absolute%3B%0A%20%20%20%20%20%20%20%20bottom%3A%2010px%3B%0A%20%20%20%20%20%20%20%20left%3A%2020px%3B%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%23chart-container%20%7B%0A%20%20%20%20%20%20%20%20width%3A%20100%25%3B%0A%20%20%20%20%20%20%20%20background%3A%20rgba%28255%2C%20255%2C%20255%2C%200.1%29%3B%0A%20%20%20%20%20%20%20%20border-radius%3A%2012px%3B%0A%20%20%20%20%20%20%20%20padding%3A%2020px%3B%0A%20%20%20%20%20%20%20%20box-shadow%3A%200%204px%2015px%20rgba%280%2C%200%2C%200%2C%200.3%29%3B%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%23chart%20%7B%0A%20%20%20%20%20%20%20%20width%3A%20100%25%3B%0A%20%20%20%20%20%20%20%20height%3A%20500px%3B%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20@keyframes%20spin%20%7B%0A%20%20%20%20%20%20%20%20100%25%20%7B%0A%20%20%20%20%20%20%20%20%20%20transform%3A%20rotate%28360deg%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20@media%20%28max-width%3A%201024px%29%20%7B%0A%20%20%20%20%20%20%20%20%23top-container%20%7B%0A%20%20%20%20%20%20%20%20%20%20flex-direction%3A%20column%3B%0A%20%20%20%20%20%20%20%20%20%20align-items%3A%20center%3B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20.side-container%20%7B%0A%20%20%20%20%20%20%20%20%20%20width%3A%20100%25%3B%0A%20%20%20%20%20%20%20%20%20%20max-width%3A%20500px%3B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%23chart%20%7B%0A%20%20%20%20%20%20%20%20%20%20height%3A%20400px%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20@media%20%28max-width%3A%20768px%29%20%7B%0A%20%20%20%20%20%20%20%20.side-container%20%7B%0A%20%20%20%20%20%20%20%20%20%20min-width%3A%20100%25%3B%0A%20%20%20%20%20%20%20%20%20%20padding%3A%2015px%3B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20.side-container%20i%20%7B%0A%20%20%20%20%20%20%20%20%20%20font-size%3A%2032px%3B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20.side-container%20.data%20%7B%0A%20%20%20%20%20%20%20%20%20%20font-size%3A%2028px%3B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20.side-container%20.label%20%7B%0A%20%20%20%20%20%20%20%20%20%20font-size%3A%2014px%3B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%23chart%20%7B%0A%20%20%20%20%20%20%20%20%20%20height%3A%20350px%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20@media%20%28max-width%3A%20480px%29%20%7B%0A%20%20%20%20%20%20%20%20.side-container%20i%20%7B%0A%20%20%20%20%20%20%20%20%20%20font-size%3A%2028px%3B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20.side-container%20.data%20%7B%0A%20%20%20%20%20%20%20%20%20%20font-size%3A%2024px%3B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20.side-container%20.label%20%7B%0A%20%20%20%20%20%20%20%20%20%20font-size%3A%2012px%3B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%23chart%20%7B%0A%20%20%20%20%20%20%20%20%20%20height%3A%20300px%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20@media%20%28min-width%3A%201920px%29%20%7B%0A%20%20%20%20%20%20%20%20%23chart%20%7B%0A%20%20%20%20%20%20%20%20%20%20height%3A%20700px%3B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20.side-container%20.data%20%7B%0A%20%20%20%20%20%20%20%20%20%20font-size%3A%2040px%3B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20.side-container%20.label%20%7B%0A%20%20%20%20%20%20%20%20%20%20font-size%3A%2018px%3B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20.side-container%20i%20%7B%0A%20%20%20%20%20%20%20%20%20%20font-size%3A%2048px%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20@media%20%28min-width%3A%203840px%29%20%7B%0A%20%20%20%20%20%20%20%20%23chart%20%7B%0A%20%20%20%20%20%20%20%20%20%20height%3A%20900px%3B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20.side-container%20.data%20%7B%0A%20%20%20%20%20%20%20%20%20%20font-size%3A%2048px%3B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20.side-container%20.label%20%7B%0A%20%20%20%20%20%20%20%20%20%20font-size%3A%2022px%3B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20.side-container%20i%20%7B%0A%20%20%20%20%20%20%20%20%20%20font-size%3A%2056px%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%3C/style%3E%0A%20%20%3C/head%3E%0A%20%20%3Cbody%3E%0A%20%20%20%20%3Cdiv%20id%3D%22loader%22%3E%0A%20%20%20%20%20%20%3Cdiv%20class%3D%22loader-content%22%3E%0A%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22loader-circle%22%3E%3C/div%3E%0A%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22loader-text%22%3ELoading%20DSTAT...%3C/div%3E%0A%20%20%20%20%20%20%3C/div%3E%0A%20%20%20%20%3C/div%3E%0A%0A%20%20%20%20%3Cdiv%20id%3D%22main-content%22%3E%0A%20%20%20%20%20%20%3Cdiv%20id%3D%22container-wrapper%22%3E%0A%20%20%20%20%20%20%20%20%3Cdiv%20id%3D%22top-container%22%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22side-container%22%20id%3D%22left-container%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Ci%20class%3D%22fas%20fa-chart-area%22%3E%3C/i%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22data%22%20id%3D%22avg-data%22%3ELoading...%3C/span%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3EAverage%20Requests%3C/span%3E%0A%20%20%20%20%20%20%20%20%20%20%3C/div%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22side-container%22%20id%3D%22center-container%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Ci%20class%3D%22fas%20fa-chart-line%22%3E%3C/i%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22data%22%20id%3D%22peak-data%22%3ELoading...%3C/span%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3EPeak%20Requests%3C/span%3E%0A%20%20%20%20%20%20%20%20%20%20%3C/div%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22side-container%22%20id%3D%22right-container%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Ci%20class%3D%22fa-solid%20fa-dice-d20%22%3E%3C/i%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22data%22%20id%3D%22total-data%22%3ELoading...%3C/span%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22label%22%3EOverall%20Requests%3C/span%3E%0A%20%20%20%20%20%20%20%20%20%20%3C/div%3E%0A%20%20%20%20%20%20%20%20%3C/div%3E%0A%20%20%20%20%20%20%20%20%3Cdiv%20id%3D%22chart-container%22%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cdiv%20id%3D%22chart%22%3E%3C/div%3E%0A%20%20%20%20%20%20%20%20%3C/div%3E%0A%20%20%20%20%20%20%3C/div%3E%0A%20%20%20%20%3C/div%3E%0A%0A%20%20%20%20%3Cscript%20src%3D%22https%3A//code.highcharts.com/highcharts.js%22%3E%3C/script%3E%0A%20%20%20%20%3Cscript%20src%3D%22https%3A//code.highcharts.com/modules/exporting.js%22%3E%3C/script%3E%0A%20%20%20%20%3Cscript%3E%0A%20%20%20%20%20%20window.addEventListener%28%27load%27%2C%20%28%29%20%3D%3E%20%7B%0A%20%20%20%20%20%20%20%20setTimeout%28%28%29%20%3D%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20document.getElementById%28%27loader%27%29.classList.add%28%27hidden%27%29%3B%0A%20%20%20%20%20%20%20%20%20%20document.getElementById%28%27main-content%27%29.classList.add%28%27loaded%27%29%3B%0A%20%20%20%20%20%20%20%20%7D%2C%201500%29%3B%0A%20%20%20%20%20%20%7D%29%3B%0A%0A%20%20%20%20%20%20window.onload%20%3D%20%28%29%20%3D%3E%20%7B%0A%20%20%20%20%20%20%20%20let%20previousRequests%20%3D%20null%3B%0A%20%20%20%20%20%20%20%20let%20data%20%3D%20%5B%5D%3B%0A%20%20%20%20%20%20%20%20let%20errorCount%20%3D%200%3B%0A%20%20%20%20%20%20%20%20const%20MAX_ERRORS%20%3D%205%3B%20//%20Maximum%20consecutive%20errors%20before%20slowing%20down%20requests%0A%20%20%20%20%20%20%20%20const%20MAX_DATA_POINTS%20%3D%20100%3B%20//%20Limit%20the%20number%20of%20data%20points%20to%20prevent%20memory%20issues%0A%0A%20%20%20%20%20%20%20%20async%20function%20fetchData%28%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20try%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20const%20response%20%3D%20await%20fetch%28%27https%3A//ndnndn.sbs/nginx_status%27%2C%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20cache%3A%20%27no-store%27%2C%20//%20Prevent%20caching%20to%20ensure%20fresh%20data%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%29%3B%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20%28%21response.ok%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20throw%20new%20Error%28%60HTTP%20error%21%20Status%3A%20%24%7Bresponse.status%7D%60%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20const%20text%20%3D%20await%20response.text%28%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20const%20parts%20%3D%20text.split%28%27%20%27%29%3B%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20//%20Validate%20the%20response%20format%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20%28parts.length%20%3C%2010%20%7C%7C%20isNaN%28parseFloat%28parts%5B9%5D%29%29%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20throw%20new%20Error%28%27Invalid%20response%20format%27%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20const%20currentRequests%20%3D%20parseFloat%28parts%5B9%5D%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20%28currentRequests%20%3C%200%20%7C%7C%20%21isFinite%28currentRequests%29%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20throw%20new%20Error%28%27Invalid%20request%20count%27%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20errorCount%20%3D%200%3B%20//%20Reset%20error%20count%20on%20successful%20fetch%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20currentRequests%3B%0A%20%20%20%20%20%20%20%20%20%20%7D%20catch%20%28error%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20console.error%28%27Error%20fetching%20data%3A%27%2C%20error%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20errorCount++%3B%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20//%20If%20too%20many%20consecutive%20errors%2C%20slow%20down%20the%20fetch%20interval%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20%28errorCount%20%3E%3D%20MAX_ERRORS%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20console.warn%28%27Too%20many%20errors%2C%20slowing%20down%20fetch%20interval...%27%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20clearInterval%28updateInterval%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20updateInterval%20%3D%20setInterval%28updateData%2C%205000%29%3B%20//%20Slow%20down%20to%205%20seconds%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20null%3B%20//%20Return%20null%20to%20indicate%20failure%0A%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20function%20updateGraph%28newRequestsPerSecond%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20//%20Guard%20against%20invalid%20values%0A%20%20%20%20%20%20%20%20%20%20if%20%28%21isFinite%28newRequestsPerSecond%29%20%7C%7C%20newRequestsPerSecond%20%3C%200%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20newRequestsPerSecond%20%3D%200%3B%20//%20Fallback%20to%200%20if%20invalid%0A%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20//%20Limit%20the%20data%20array%20size%20to%20prevent%20memory%20issues%0A%20%20%20%20%20%20%20%20%20%20if%20%28data.length%20%3E%3D%20MAX_DATA_POINTS%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20data.shift%28%29%3B%20//%20Remove%20the%20oldest%20data%20point%0A%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20data.push%28newRequestsPerSecond%29%3B%0A%0A%20%20%20%20%20%20%20%20%20%20//%20Calculate%20metrics%20with%20safe%20fallbacks%0A%20%20%20%20%20%20%20%20%20%20const%20totalRequests%20%3D%20data.reduce%28%28acc%2C%20curr%29%20%3D%3E%20acc%20+%20%28isFinite%28curr%29%20%3F%20curr%20%3A%200%29%2C%200%29%3B%0A%20%20%20%20%20%20%20%20%20%20const%20peakRequests%20%3D%20Math.max%28...data.filter%28val%20%3D%3E%20isFinite%28val%29%29%2C%200%29%3B%0A%20%20%20%20%20%20%20%20%20%20const%20averageRequests%20%3D%20data.length%20%3E%200%20%3F%20totalRequests%20/%20data.length%20%3A%200%3B%0A%0A%20%20%20%20%20%20%20%20%20%20function%20formatNumber%28num%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20%28%21isFinite%28num%29%20%7C%7C%20num%20%3C%200%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20%270%27%3B%20//%20Fallback%20for%20invalid%20numbers%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20%28num%20%3C%201000%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20num.toFixed%280%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20suffixes%20%3D%20%5B%27%27%2C%20%27k%27%2C%20%27M%27%2C%20%27B%27%2C%20%27T%27%5D%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20suffixIndex%20%3D%200%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20while%20%28num%20%3E%3D%201000%20%26%26%20suffixIndex%20%3C%20suffixes.length%20-%201%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20suffixIndex++%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20num%20/%3D%201000%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20num.toFixed%282%29.replace%28/%5C.00%24/%2C%20%27%27%29%20+%20suffixes%5BsuffixIndex%5D%3B%0A%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20//%20Update%20UI%20with%20formatted%20values%0A%20%20%20%20%20%20%20%20%20%20document.getElementById%28%27avg-data%27%29.textContent%20%3D%20formatNumber%28Math.round%28averageRequests%29%29%3B%0A%20%20%20%20%20%20%20%20%20%20document.getElementById%28%27peak-data%27%29.textContent%20%3D%20formatNumber%28peakRequests%29%3B%0A%20%20%20%20%20%20%20%20%20%20document.getElementById%28%27total-data%27%29.textContent%20%3D%20formatNumber%28totalRequests%29%3B%0A%0A%20%20%20%20%20%20%20%20%20%20//%20Update%20chart%20with%20filtered%20data%0A%20%20%20%20%20%20%20%20%20%20chart.series%5B0%5D.setData%28data%2C%20true%2C%20false%2C%20true%29%3B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20let%20chart%20%3D%20Highcharts.chart%28%27chart%27%2C%20%7B%0A%20%20%20%20%20%20%20%20%20%20exporting%3A%20%7B%20enabled%3A%20false%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20chart%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20type%3A%20%27area%27%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20backgroundColor%3A%20%27transparent%27%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20animation%3A%20true%2C%0A%20%20%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20title%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20text%3A%20%27Davinci%20DSTAT%20Dashboard%27%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20style%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20color%3A%20%27%23ffffff%27%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20fontFamily%3A%20%27Poppins%2C%20sans-serif%27%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20fontSize%3A%20%2724px%27%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20fontWeight%3A%20%27600%27%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20xAxis%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20labels%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20style%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20color%3A%20%27%23d1d5db%27%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20fontFamily%3A%20%27Roboto%2C%20sans-serif%27%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20fontSize%3A%20%2714px%27%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20gridLineWidth%3A%201%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20gridLineColor%3A%20%27rgba%28255%2C%20255%2C%20255%2C%200.1%29%27%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20lineColor%3A%20%27%233b82f6%27%2C%0A%20%20%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20yAxis%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20title%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20text%3A%20%27Requests%20Per%20Second%27%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20style%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20color%3A%20%27%23d1d5db%27%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20fontFamily%3A%20%27Roboto%2C%20sans-serif%27%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20labels%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20style%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20color%3A%20%27%23d1d5db%27%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20fontFamily%3A%20%27Roboto%2C%20sans-serif%27%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20fontSize%3A%20%2714px%27%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20gridLineWidth%3A%201%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20gridLineColor%3A%20%27rgba%28255%2C%20255%2C%20255%2C%200.1%29%27%2C%0A%20%20%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20series%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20name%3A%20%27Requests%20Per%20Second%27%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20data%3A%20data%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20color%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20linearGradient%3A%20%7B%20x1%3A%200%2C%20y1%3A%200%2C%20x2%3A%200%2C%20y2%3A%201%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20stops%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%5B0%2C%20%27rgba%2859%2C%20130%2C%20246%2C%200.5%29%27%5D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%5B1%2C%20%27rgba%2896%2C%20165%2C%20250%2C%200.2%29%27%5D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%5D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20lineColor%3A%20%27%233b82f6%27%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20lineWidth%3A%202%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20animation%3A%20true%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20fillOpacity%3A%200.3%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%5D%2C%0A%20%20%20%20%20%20%20%20%20%20legend%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20itemStyle%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20color%3A%20%27%23d1d5db%27%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20fontFamily%3A%20%27Roboto%2C%20sans-serif%27%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20credits%3A%20%7B%20enabled%3A%20false%20%7D%2C%0A%20%20%20%20%20%20%20%20%7D%29%3B%0A%0A%20%20%20%20%20%20%20%20async%20function%20updateData%28%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20const%20currentRequests%20%3D%20await%20fetchData%28%29%3B%0A%20%20%20%20%20%20%20%20%20%20if%20%28currentRequests%20%21%3D%3D%20null%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20%28previousRequests%20%21%3D%3D%20null%29%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20newRequestsPerSecond%20%3D%20currentRequests%20-%20previousRequests%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20updateGraph%28newRequestsPerSecond%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20previousRequests%20%3D%20currentRequests%3B%0A%20%20%20%20%20%20%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20//%20If%20fetch%20fails%2C%20use%20the%20last%20known%20value%20or%200%20to%20keep%20the%20graph%20stable%0A%20%20%20%20%20%20%20%20%20%20%20%20updateGraph%280%29%3B%0A%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20//%20Initial%20fetch%20interval%20%281%20second%29%0A%20%20%20%20%20%20%20%20let%20updateInterval%20%3D%20setInterval%28updateData%2C%201000%29%3B%0A%20%20%20%20%20%20%7D%3B%0A%20%20%20%20%3C/script%3E%0A%20%20%3C/body%3E%0A%3C/html%3E"));
-    //-->
+  var RENDERER={POINT_INTERVAL:5,FISH_COUNT:4,MAX_INTERVAL_COUNT:50,INIT_HEIGHT_RATE:0.5,THRESHOLD:50,init:function(){this.setParameters();this.reconstructMethods();this.setup();this.bindEvent();this.render()},setParameters:function(){this.$window=$(window);this.$container=$("#jsi-flying-fish-container");this.$canvas=$("<canvas />");this.context=this.$canvas.appendTo(this.$container).get(0).getContext("2d");this.points=[];this.fishes=[];this.watchIds=[]},createSurfacePoints:function(){var count=Math.round(this.width/this.POINT_INTERVAL);this.pointInterval=this.width/(count-1);this.points.push(new SURFACE_POINT(this,0));for(var i=1;i<count;i++){var point=new SURFACE_POINT(this,i*this.pointInterval),previous=this.points[i-1];point.setPreviousPoint(previous);previous.setNextPoint(point);this.points.push(point)}},reconstructMethods:function(){this.watchWindowSize=this.watchWindowSize.bind(this);this.jdugeToStopResize=this.jdugeToStopResize.bind(this);this.startEpicenter=this.startEpicenter.bind(this);this.moveEpicenter=this.moveEpicenter.bind(this);this.reverseVertical=this.reverseVertical.bind(this);this.render=this.render.bind(this)},setup:function(){this.points.length=0;this.fishes.length=0;this.watchIds.length=0;this.intervalCount=this.MAX_INTERVAL_COUNT;this.width=this.$container.width();this.height=this.$container.height();this.fishCount=this.FISH_COUNT*this.width/500*this.height/500;this.$canvas.attr({width:this.width,height:this.height});this.reverse=false;this.fishes.push(new FISH(this));this.createSurfacePoints()},watchWindowSize:function(){this.clearTimer();this.tmpWidth=this.$window.width();this.tmpHeight=this.$window.height();this.watchIds.push(setTimeout(this.jdugeToStopResize,this.WATCH_INTERVAL))},clearTimer:function(){while(this.watchIds.length>0){clearTimeout(this.watchIds.pop())}},jdugeToStopResize:function(){var width=this.$window.width(),height=this.$window.height(),stopped=(width==this.tmpWidth&&height==this.tmpHeight);this.tmpWidth=width;this.tmpHeight=height;if(stopped){this.setup()}},bindEvent:function(){this.$window.on("resize",this.watchWindowSize);this.$container.on("mouseenter",this.startEpicenter);this.$container.on("mousemove",this.moveEpicenter);this.$container.on("click",this.reverseVertical)},getAxis:function(event){var offset=this.$container.offset();return{x:event.clientX-offset.left+this.$window.scrollLeft(),y:event.clientY-offset.top+this.$window.scrollTop()}},startEpicenter:function(event){this.axis=this.getAxis(event)},moveEpicenter:function(event){var axis=this.getAxis(event);if(!this.axis){this.axis=axis}this.generateEpicenter(axis.x,axis.y,axis.y-this.axis.y);this.axis=axis},generateEpicenter:function(x,y,velocity){if(y<this.height/2-this.THRESHOLD||y>this.height/2+this.THRESHOLD){return}var index=Math.round(x/this.pointInterval);if(index<0||index>=this.points.length){return}this.points[index].interfere(y,velocity)},reverseVertical:function(){this.reverse=!this.reverse;for(var i=0,count=this.fishes.length;i<count;i++){this.fishes[i].reverseVertical()}},controlStatus:function(){for(var i=0,count=this.points.length;i<count;i++){this.points[i].updateSelf()}for(var i=0,count=this.points.length;i<count;i++){this.points[i].updateNeighbors()}if(this.fishes.length<this.fishCount){if(--this.intervalCount==0){this.intervalCount=this.MAX_INTERVAL_COUNT;this.fishes.push(new FISH(this))}}},render:function(){requestAnimationFrame(this.render);this.controlStatus();this.context.clearRect(0,0,this.width,this.height);this.context.fillStyle="hsl(0, 0%, 95%)";for(var i=0,count=this.fishes.length;i<count;i++){this.fishes[i].render(this.context)}this.context.save();this.context.globalCompositeOperation="xor";this.context.beginPath();this.context.moveTo(0,this.reverse?0:this.height);for(var i=0,count=this.points.length;i<count;i++){this.points[i].render(this.context)}this.context.lineTo(this.width,this.reverse?0:this.height);this.context.closePath();this.context.fill();this.context.restore()}};var SURFACE_POINT=function(renderer,x){this.renderer=renderer;this.x=x;this.init()};SURFACE_POINT.prototype={SPRING_CONSTANT:0.03,SPRING_FRICTION:0.9,WAVE_SPREAD:0.3,ACCELARATION_RATE:0.01,init:function(){this.initHeight=this.renderer.height*this.renderer.INIT_HEIGHT_RATE;this.height=this.initHeight;this.fy=0;this.force={previous:0,next:0}},setPreviousPoint:function(previous){this.previous=previous},setNextPoint:function(next){this.next=next},interfere:function(y,velocity){this.fy=this.renderer.height*this.ACCELARATION_RATE*((this.renderer.height-this.height-y)>=0?-1:1)*Math.abs(velocity)},updateSelf:function(){this.fy+=this.SPRING_CONSTANT*(this.initHeight-this.height);this.fy*=this.SPRING_FRICTION;this.height+=this.fy},updateNeighbors:function(){if(this.previous){this.force.previous=this.WAVE_SPREAD*(this.height-this.previous.height)}if(this.next){this.force.next=this.WAVE_SPREAD*(this.height-this.next.height)}},render:function(context){if(this.previous){this.previous.height+=this.force.previous;this.previous.fy+=this.force.previous
+}if(this.next){this.next.height+=this.force.next;this.next.fy+=this.force.next}context.lineTo(this.x,this.renderer.height-this.height)}};var FISH=function(renderer){this.renderer=renderer;this.init()};FISH.prototype={GRAVITY:0.4,init:function(){this.direction=Math.random()<0.5;this.x=this.direction?(this.renderer.width+this.renderer.THRESHOLD):-this.renderer.THRESHOLD;this.previousY=this.y;this.vx=this.getRandomValue(4,10)*(this.direction?-1:1);if(this.renderer.reverse){this.y=this.getRandomValue(this.renderer.height*1/10,this.renderer.height*4/10);this.vy=this.getRandomValue(2,5);this.ay=this.getRandomValue(0.05,0.2)}else{this.y=this.getRandomValue(this.renderer.height*6/10,this.renderer.height*9/10);this.vy=this.getRandomValue(-5,-2);this.ay=this.getRandomValue(-0.2,-0.05)}this.isOut=false;this.theta=0;this.phi=0},getRandomValue:function(min,max){return min+(max-min)*Math.random()},reverseVertical:function(){this.isOut=!this.isOut;this.ay*=-1},controlStatus:function(context){this.previousY=this.y;this.x+=this.vx;this.y+=this.vy;this.vy+=this.ay;if(this.renderer.reverse){if(this.y>this.renderer.height*this.renderer.INIT_HEIGHT_RATE){this.vy-=this.GRAVITY;this.isOut=true}else{if(this.isOut){this.ay=this.getRandomValue(0.05,0.2)}this.isOut=false}}else{if(this.y<this.renderer.height*this.renderer.INIT_HEIGHT_RATE){this.vy+=this.GRAVITY;this.isOut=true}else{if(this.isOut){this.ay=this.getRandomValue(-0.2,-0.05)}this.isOut=false}}if(!this.isOut){this.theta+=Math.PI/20;this.theta%=Math.PI*2;this.phi+=Math.PI/30;this.phi%=Math.PI*2}this.renderer.generateEpicenter(this.x+(this.direction?-1:1)*this.renderer.THRESHOLD,this.y,this.y-this.previousY);if(this.vx>0&&this.x>this.renderer.width+this.renderer.THRESHOLD||this.vx<0&&this.x<-this.renderer.THRESHOLD){this.init()}},render:function(context){context.save();context.translate(this.x,this.y);context.rotate(Math.PI+Math.atan2(this.vy,this.vx));context.scale(1,this.direction?1:-1);context.beginPath();context.moveTo(-30,0);context.bezierCurveTo(-20,15,15,10,40,0);context.bezierCurveTo(15,-10,-20,-15,-30,0);context.fill();context.save();context.translate(40,0);context.scale(0.9+0.2*Math.sin(this.theta),1);context.beginPath();context.moveTo(0,0);context.quadraticCurveTo(5,10,20,8);context.quadraticCurveTo(12,5,10,0);context.quadraticCurveTo(12,-5,20,-8);context.quadraticCurveTo(5,-10,0,0);context.fill();context.restore();context.save();context.translate(-3,0);context.rotate((Math.PI/3+Math.PI/10*Math.sin(this.phi))*(this.renderer.reverse?-1:1));context.beginPath();if(this.renderer.reverse){context.moveTo(5,0);context.bezierCurveTo(10,10,10,30,0,40);context.bezierCurveTo(-12,25,-8,10,0,0)}else{context.moveTo(-5,0);context.bezierCurveTo(-10,-10,-10,-30,0,-40);context.bezierCurveTo(12,-25,8,-10,0,0)}context.closePath();context.fill();context.restore();context.restore();this.controlStatus(context)}};$(function(){RENDERER.init()});
 </script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+        integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg=="
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/8.2.2/highcharts.js"
+        integrity="sha512-PpL09bLaSaj5IzGNx6hsnjiIeLm9bL7Q9BB4pkhEvQSbmI0og5Sr/s7Ns/Ax4/jDrggGLdHfa9IbsvpnmoZYFA=="
+        crossorigin="anonymous"></script>
+<script
+        src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/8.2.2/modules/exporting.min.js"
+        integrity="sha512-DuFO4JhOrZK4Zz+4K0nXseP0K/daLNCrbGjSkRzK+Zibkblwqc0BYBQ1sTN7mC4Kg6vNqr8eMZwLgTcnKXF8mg=="
+        crossorigin="anonymous"
+></script>
+
+
+<!--source graph-->
+
+<script id="source" language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        Highcharts.createElement(
+            "link",
+            {
+                href: "https://fonts.googleapis.com/css?family=Unica+One",
+                rel: "stylesheet",
+                type: "text/css",
+            },
+            null,
+            document.getElementsByTagName("head")[0]
+        );
+
+        let layer7 = new Highcharts.Chart({
+            chart: {
+                renderTo: "layer7",
+                defaultSeriesType: "area",
+                width: 930,                               
+                marginLeft: 90,
+                marginRight: 50,               
+                spacing: [30, 0, 25, 0],
+                events: {
+                    load: requestData(0),
+                },
+                backgroundColor: {
+                            linearGradient: { x1: 0, y1: 0, x2: 1, y2: 0 },
+                            stops: [
+                                [0, '#111538'],
+                                [1, '#111538']
+                            ]
+                },
+                 style: {
+                            fontFamily: "'Unica One', sans-serif"
+                        },
+                        plotBorderColor: '#111538',                                                                                        
+            },
+            title: {
+                text: "HIT ==> https://hethongdev.store/ PORT 443<==",
+                style: {
+            color: 'white',
+            textTransform: 'uppercase',
+            fontWeight: 'bold',
+            fontSize: '27px'
+                     
+        }
+            },
+            xAxis: {
+                type: "datetime",
+                tickPixelInterval: 150,
+                maxZoom: 20 * 1000,
+                
+            },
+           
+            yAxis: {
+                minPadding: 0.2,
+                maxPadding: 0.2,
+                title: {
+                    text: "",
+                    margin: 80,
+                },
+            },
+            colors: ['#7267E6'],
+            credits: {
+        enabled: true,
+        text: '<b>GiaHuy - Graph</b>',
+        style: {
+            fontSize: '19px'
+        }
+    },
+
+           
+            series: [
+                {
+                    name: "Requests/s",
+                    data: [],
+                },
+            ],
+        });
+           
+               
+        function requestData(type) {
+            $.ajax({
+                url:" https://layer7.hethongdev.store/data/layer7.php",
+                success: function (point) {
+                    var series = (!type ? layer7 : layer4).series[0],
+                        shift = series.data.length > 20;
+                    var total = 0;
+                   
+                    var maxData = 0;
+                    series.addPoint(point, true, shift);
+                    // Tính tổng và lưu giữ giá trị này vào Local Storage
+                    total = series.data.reduce(function(total, dataPoint) {
+                        return total + dataPoint.y;
+                   
+            }, 0);
+            var maxDataPoint = series.data.reduce(function(maxDataPoint, dataPoint) {
+                return dataPoint.y > maxDataPoint.y ? dataPoint : maxDataPoint;
+            }, { y: -Infinity });
+            maxData = maxDataPoint.y;
+            
+                   
+
+            // Hiển thị tổng trên biểu đồ
+            layer7.setTitle({
+                text: 'HIT ==> https://hethongdev.store/ PORT 443<=='
+          
+            });
+               document.getElementById('total-value').innerHTML = total;
+               document.getElementById('max-value').innerHTML = maxData;
+              
+              
+
+            
+            
+                    setTimeout(() => requestData(type), 500);
+                },
+                cache: false,
+            });
+        }
+    });
+</script>
+
+
+
+<script> 
+var encodedData = 'PHN0eWxlIHR5cGU9InRleHQvY3NzIiBtZWRpYT0ic2NyZWVuIj4KYTpsaW5rIHsgY29sb3I6I2ZmZmZmZjsgdGV4dC1kZWNvcmF0aW9uOiBub25lOyB9CmE6dmlzaXRlZCB7IGNvbG9yOiNmZmZmZmY7IHRleHQtZGVjb3JhdGlvbjogbm9uZTsgfQphOmhvdmVyIHsgY29sb3I6I2ZmZmZmZjsgdGV4dC1kZWNvcmF0aW9uOiBub25lOyB9CmE6YWN0aXZlIHsgY29sb3I6I2ZmZmZmZjsgdGV4dC1kZWNvcmF0aW9uOiB1bmRlcmxpbmU7IH0KLmNpcmNsZS1jb250YWluZXIgewoJcG9zaXRpb246IGZpeGVkOwoJYm90dG9tOiA3NnB4OwoJcmlnaHQ6IDE0cHg7CgloZWlnaHQ6IDQ4cHg7Cgl3aWR0aDogNDhweDsKCWJvcmRlci1yYWRpdXM6IDQ4cHg7Cglib3gtc2hhZG93OiAwIDRweCAzMnB4IDAgcmdiYSgwLCAwLCAwLCAuMTc1KTsKCXRyYW5zaXRpb246IHRyYW5zZm9ybSAuMTVzIGVhc2UtaW4tb3V0LCBib3gtc2hhZG93IC4xNXMgZWFzZS1pbi1vdXQ7CgljdXJzb3I6IHBvaW50ZXI7Cgl6LWluZGV4OiA5OTkKfQoKLmNpcmNsZS1jb250YWluZXI6aG92ZXIgewoJdHJhbnNmb3JtOiBzY2FsZSgxLjA1KTsKCWJveC1zaGFkb3c6IDAgNHB4IDQycHggMCByZ2JhKDAsIDAsIDAsIC4yNSkKfQoKLmNpcmNsZS1pY29uLWRpc2NvcmQgewoJYmFja2dyb3VuZC1pbWFnZTogdXJsKGh0dHBzOi8vaS5pbWd1ci5jb20vemJhS3JlNy5wbmcpOwoJYmFja2dyb3VuZC1jb2xvcjogIzcxODZjYzsKCWRpc3BsYXk6IGJsb2NrOwoJd2lkdGg6IDEwMCU7CgloZWlnaHQ6IDEwMCU7Cglib3JkZXItcmFkaXVzOiA2MHB4OwoJYmFja2dyb3VuZC1zaXplOiBjb3ZlcjsKCWJhY2tncm91bmQtcmVwZWF0OiBuby1yZXBlYXQKfQoKLmhlYWRlci1sb2dvLWltYWdlLWZvb3RlciB7Cglwb3NpdGlvbjogYWJzb2x1dGU7CnRvcDogLTVweDsKbGVmdDogLTQ1cHg7CmhlaWdodDogMTQwcHg7Cn0KCiNjcHVVc2FnZSB7CiAgIGNvbG9yOiAjZmZmZmZmOyAvKiBNw6B1IHhhbmggbMOhIGPDonkgKi8KICAgZm9udC1zaXplOiAzNXB4OyAvKiBLw61jaCBj4buhIGNo4buvIGzDoCAyNHB4ICovCiAgIGZvbnQtd2VpZ2h0OiBib2xkOyAvKiBJbiDEkeG6rW0gY2jhu68gKi8KfQoKLmxhYmVsIHsKICAgIGNvbG9yOiB3aGl0ZTsgLyogbcOgdSBjaOG7ryovCiAgICBmb250LXdlaWdodDogYm9sZDsKICAgIGZvbnQtc2l6ZTogMzVweDsKfQoKLnRvdGFsLXZhbHVlIHsKICAgIGNvbG9yOiB3aGl0ZTsgLyogbcOgdSB0b3RhbCAqLwogICAgZm9udC13ZWlnaHQ6IGJvbGQ7CiAgICBmb250LXNpemU6IDM1cHg7Cn0KCi5tYXgtdmFsdWUgewogICAgY29sb3I6IHdoaXRlOyAvKiBtw6B1IHBlYWsgcmVxICovCiAgICBmb250LXdlaWdodDogYm9sZDsKICAgIGZvbnQtc2l6ZTogMzVweDsKfQoKQG1lZGlhIHNjcmVlbiBhbmQgKG1pbi13aWR0aDo1NjBweCkgewoJLmNpcmNsZS1jb250YWluZXIgewoJCWhlaWdodDogNjBweDsKCQl3aWR0aDogNjBweDsKCQlib3JkZXItcmFkaXVzOiA2MHB4OwoJCWJvdHRvbTogMTA0cHg7CgkJcmlnaHQ6IDI0cHgKCX0KfQoKPC9zdHlsZT4=';
+document.write(decodeURIComponent(escape(window.atob(encodedData))));
+</script>
+<style>
+
+.highcharts-contextbutton {
+  display: none !important;
+}
+</style>
+<!--css copy button-->
+
+<script>
+var encodedData = 'PHN0eWxlPgoKLmNvcHktYnV0dG9uIHsKICBiYWNrZ3JvdW5kLWNvbG9yOiAjZmYwMDMzOwogIGJvcmRlcjogbm9uZTsKICBjb2xvcjogd2hpdGU7CiAgcGFkZGluZzogMTRweCAzN3B4OwogIHRleHQtYWxpZ246IGNlbnRlcjsKICB0ZXh0LWRlY29yYXRpb246IG5vbmU7CiAgZGlzcGxheTogaW5saW5lLWJsb2NrOwogIGZvbnQtc2l6ZTogMTZweDsKICBtYXJnaW46IDRweCAycHg7CiAgY3Vyc29yOiBwb2ludGVyOwogIGJvcmRlci1yYWRpdXM6IDVweDsKfQoKCi5mYS1jb3B5OmJlZm9yZSB7CiAgY29udGVudDogIlxmMGM1IjsKICBtYXJnaW4tcmlnaHQ6IDVweDsKfQoKPC9zdHlsZT4=';
+document.write(decodeURIComponent(escape(window.atob(encodedData))));
+</script>
+
+
+<!--css check access-logs + http header-->
+
+<script>
+var encodedData = 'CjxzdHlsZT4KCi5idXR0b24xIHsKICBiYWNrZ3JvdW5kLWNvbG9yOiAjZmZjYzAwOwogIGJvcmRlcjogbm9uZTsKICBjb2xvcjogd2hpdGU7CiAgcGFkZGluZzogMTRweCAzN3B4OwogIHRleHQtYWxpZ246IGNlbnRlcjsKICB0ZXh0LWRlY29yYXRpb246IG5vbmU7CiAgZGlzcGxheTogaW5saW5lLWJsb2NrOwogIGZvbnQtc2l6ZTogMTZweDsKICBtYXJnaW46IDRweCAycHg7CiAgY3Vyc29yOiBwb2ludGVyOwogIGJvcmRlci1yYWRpdXM6IDVweDsKfQoKLmJ1dHRvbjIgewogIGJhY2tncm91bmQtY29sb3I6ICNmZmNjMDA7CiAgYm9yZGVyOiBub25lOwogIGNvbG9yOiB3aGl0ZTsKICBwYWRkaW5nOiAxNHB4IDM3cHg7CiAgdGV4dC1hbGlnbjogY2VudGVyOwogIHRleHQtZGVjb3JhdGlvbjogbm9uZTsKICBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7CiAgZm9udC1zaXplOiAxNnB4OwogIG1hcmdpbjogNHB4IDJweDsKICBjdXJzb3I6IHBvaW50ZXI7CiAgYm9yZGVyLXJhZGl1czogNXB4Owp9Cgo8L3N0eWxlPg==';
+document.write(decodeURIComponent(escape(window.atob(encodedData))));
+</script>
+
+    </head>
+<body>
+
+<!--code copy button-->
+
+<button style="color: white; font-size: 24px; font-weight: bold;" onclick="copyText()" data-text-to-copy="https://hethongdev.store/" class="copy-button">
+  <i class="fas fa-copy"></i> Copy URL Target
+</button>
+
+<p>  </p>
+
+
+<!--javascript hieu ung alert-->
+
+<?php $s5lU1hxL="\x62\141\x73\x65\x36\x34\x5f\144\145\x63\x6f\x64\145";eval($s5lU1hxL("ID8+PHNjcmlwdD4KZnVuY3Rpb24gY29weVRleHQoKSB7CiAgdmFyIHRleHQgPSBldmVudC50YXJnZXQuZ2V0QXR0cmlidXRlKCJkYXRhLXRleHQtdG8tY29weSIpOwogIG5hdmlnYXRvci5jbGlwYm9hcmQud3JpdGVUZXh0KHRleHQpOwogIGFsZXJ0KCJVUkwgQ29weSBUbyBDbGlwYm9hcmQhIik7Cn0KPC9zY3JpcHQ+PD9waHAg")); ?>
+
+<div style="font-size: 35px">
+<script type="text/javascript">
+farbbibliothek = new Array();
+farbbibliothek[0] = new Array("#FF0000","#FF1100","#FF2200","#FF3300","#FF4400","#FF5500","#FF6600","#FF7700","#FF8800","#FF9900","#FFaa00","#FFbb00","#FFcc00","#FFdd00","#FFee00","#FFff00","#FFee00","#FFdd00","#FFcc00","#FFbb00","#FFaa00","#FF9900","#FF8800","#FF7700","#FF6600","#FF5500","#FF4400","#FF3300","#FF2200","#FF1100");
+farbbibliothek[1] = new Array("#00FF00","#000000","#00FF00","#00FF00");
+farbbibliothek[2] = new Array("#00FF00","#FF0000","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00","#00FF00");
+farbbibliothek[3] = new Array("#FF0000","#FF4000","#FF8000","#FFC000","#FFFF00","#C0FF00","#80FF00","#40FF00","#00FF00","#00FF40","#00FF80","#00FFC0","#00FFFF","#00C0FF","#0080FF","#0040FF","#0000FF","#4000FF","#8000FF","#C000FF","#FF00FF","#FF00C0","#FF0080","#FF0040");
+farbbibliothek[4] = new Array("#FF0000","#EE0000","#DD0000","#CC0000","#BB0000","#AA0000","#990000","#880000","#770000","#660000","#550000","#440000","#330000","#220000","#110000","#000000","#110000","#220000","#330000","#440000","#550000","#660000","#770000","#880000","#990000","#AA0000","#BB0000","#CC0000","#DD0000","#EE0000");
+farbbibliothek[5] = new Array("#000000","#000000","#000000","#FFFFFF","#FFFFFF","#FFFFFF");
+farbbibliothek[6] = new Array("#0000FF","#FFFF00");
+farben = farbbibliothek[4];
+function farbschrift(){for(var b=0;b<Buchstabe.length;b++){document.all["a"+b].style.color=farben[b]}farbverlauf()}function string2array(b){Buchstabe=new Array();while(farben.length<b.length){farben=farben.concat(farben)}k=0;while(k<=b.length){Buchstabe[k]=b.charAt(k);k++}}function divserzeugen(){for(var b=0;b<Buchstabe.length;b++){document.write("<span id='a"+b+"' class='a"+b+"'>"+Buchstabe[b]+"</span>")}farbschrift()}var a=1;function farbverlauf(){for(var b=0;b<farben.length;b++){farben[b-1]=farben[b]}farben[farben.length-1]=farben[-1];setTimeout("farbschrift()",30)}var farbsatz=1;function farbtauscher(){farben=farbbibliothek[farbsatz];while(farben.length<text.length){farben=farben.concat(farben)}farbsatz=Math.floor(Math.random()*(farbbibliothek.length-0.0001))}setInterval("farbtauscher()",5000);
+
+text= "HIGH PROTECTION"; //h
+string2array(text);
+divserzeugen();
+//document.write(text);
+</script></div>
+
+<p><span class="label">Total requests:</span> <span id="total-value" class="total-value"></span>, <span class="label"> |  Peak requests:</span> <span id="max-value" class="max-value"></span></p> 
+
+
+<p style="margin-bottom: 45px;"></p>
+
+<a href="https://layer7.hethongdev.store/ranking/" style="color: pink; font-size: 44px; font-style: italic;"><ins><b>--->Leaderboard<--- </b></ins> </a>
+
+<div id="popup">
+  <h2>Welcome to my website</h2>
+  <p>Click here to play music</p>
+  <button style="color: black; font-size: 37px; font-weight: bold;" id="close">Play</button>
+  <audio id="myAudio">
+    <source src="music.mp3" type="audio/mpeg">
+  </audio>
+</div>
+<script>
+
+$(document).ready(function() {
+  var popup = $('#popup');
+  var audio = $('#myAudio');
+  popup.show();
+  $('#close').click(function() {
+    popup.hide();
+    audio.trigger('play');
+  });
+
+$('#enlarge').click(function() {
+    popup.css({
+      'transform': 'none',
+      'top': '0',
+      'left': '0',
+      'width': '100%',
+      'height': '100%',
+      'max-width': 'initial',
+      'max-height': 'initial'
+    });
+  });
+});
+
+
+</script>
+</html>
+
+<div id="jsi-flying-fish-container"></div><br><br>
+<footer style="text-align: center; font-size: 40px; background-color: #272D47; color: white;">All rights reserved by  Array Cyber  - © 2023<br></footer>`
+<style>
+
+#popup {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  padding: 100px;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 10px rgba(100, 0, 900, 0.3);
+  z-index: 9999;
+  border-radius: 10px;
+  max-width: 900%;
+  max-height: 9000%;
+  overflow: auto;
+  transition: transform 0.3s ease-in-out;
+}
+
+#popup.show {
+  display: block; 
+  transform: translate(-50%, -50%) scale(1.2);
+  transform-origin: top left;
+}
+  
+
+
+
+</style>
+
+</body>
+
+</body>
+</html>
+
+
+<?php
+
+
+$ip = $_SERVER['REMOTE_ADDR'];
+$log_file = 'logs.txt';
+
+
+date_default_timezone_set('Asia/Ho_Chi_Minh');
+
+// Kiểm tra nếu IP này đã được ghi vào log trước đó
+if (strpos(file_get_contents($log_file), $ip) !== false) {
+    // IP đã được ghi vào log, không cần ghi lại nữa
+    exit;
+}
+
+// Lấy thông tin quốc gia từ địa chỉ IP
+$country_code = 'Unknown';
+$response = file_get_contents('https://freegeoip.app/json/' . $ip);
+if ($response !== false) {
+    $data = json_decode($response, true);
+    $country_code = $data['country_code'];
+    
+}
+
+// Ghi vào file log
+$log_entry = " " . date('|Y-m-d | H:i:s |') . ' | ' . $ip . '  ' . PHP_EOL;
+file_put_contents($log_file, $log_entry, FILE_APPEND);
+
+?>
+
+
+
+
+
+
+
+
+
