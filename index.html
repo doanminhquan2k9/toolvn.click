@@ -1,346 +1,101 @@
+<script>
+  window.onload = () => {
+    let previous = null;
 
+    document.getElementById('light-theme').addEventListener('change', () => {
+      document.body.classList.remove('dark-theme');
+    });
 
-<!DOCTYPE html>
-<html lang="en">
+    document.getElementById('dark-theme').addEventListener('change', () => {
+      document.body.classList.add('dark-theme');
+    });
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  
-  <!-- SEO: Meta tags -->
-  <meta name="description" content="DSTAT LAYER7: Real-time monitoring for tracking traffic and requests with detailed graphs and statistics.">
-  <meta name="keywords" content="monitoring, traffic, requests, statistics, graphs, real-time, DSTAT, analytics, nginx">
-  <meta name="author" content="Mansur">
-  
-  <!-- Open Graph tags for social media -->
-  <meta property="og:title" content="DSTAT LAYER7: Real-time Monitoring">
-  <meta property="og:description" content="DSTAT LAYER7 provides detailed real-time traffic and request monitoring with graphs and analytics.">
-  <meta property="og:image" content=".jpg">
-  <meta property="og:url" content="https://azhq-121.ru">
-  
-  <!-- Title -->
-  <title>DSTAT LAYER7</title>
-
-  <!-- SEO: Page description -->
-  <meta name="description" content="DSTAT LAYER7 provides real-time analytics with detailed graphs and statistics for monitoring traffic and requests.">
-
-  <style>
-    /* Light theme styles */
-    html, body {
-      background-color: #f8f9fa;
-      height: 100%;
-      margin: 0;
-      font-family: "Arial", sans-serif;
-      color: #333;
-    }
-
-    /* Dark theme styles */
-    body.dark-theme {
-      background-color: #121212;
-      color: #e0e0e0;
-    }
-
-    body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      text-align: center;
-    }
-
-    body > div {
-      width: 100%;
-      max-width: 1200px;
-    }
-
-    #chart {
-      width: 90%;
-      max-width: 1100px;
-      height: 500px;
-      margin: auto;
-      border: 2px solid rgba(0, 123, 255, 0.7);
-      border-radius: 5px;
-      position: relative;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      background-color: #fff; /* Default white background */
-    }
-
-    /* Dark mode background for chart */
-    body.dark-theme #chart {
-      background-color: #333;
-    }
-
-    /* Resize handles */
-    .resize-handle {
-      width: 12px;
-      height: 12px;
-      background-color: rgba(0, 123, 255, 0.7);
-      border-radius: 50%;
-      position: absolute;
-      cursor: pointer;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-    }
-
-    #top-left { top: -6px; left: -6px; cursor: nwse-resize; }
-    #top-right { top: -6px; right: -6px; cursor: nesw-resize; }
-    #bottom-left { bottom: -6px; left: -6px; cursor: nesw-resize; }
-    #bottom-right { bottom: -6px; right: -6px; cursor: nwse-resize; }
-
-    h1 {
-      color: #333; /* Light theme color */
-      font-size: 36px;
-      margin-bottom: 20px;
-    }
-
-    /* Dark theme heading */
-    body.dark-theme h1 {
-      color: #e0e0e0; /* Light color for headings in dark mode */
-    }
-
-    .subtitle {
-      color: #555; /* Light theme color */
-      font-size: 18px;
-      margin-bottom: 20px;
-    }
-
-    /* Dark theme subtitle */
-    body.dark-theme .subtitle {
-      color: #ccc; /* Lighter color for subtitle in dark mode */
-    }
-
-    .theme-toggle {
-      margin: 20px;
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .theme-toggle label {
-      color: #FF5733;
-      font-size: 16px;
-    }
-
-    /* Dark theme for theme toggle */
-    body.dark-theme .theme-toggle label {
-      color: #FFB74D; /* Change theme toggle label color in dark mode */
-    }
-
-    @media (max-width: 768px) {
-      h1 { font-size: 28px; }
-      .subtitle { font-size: 16px; }
-      #chart { width: 90%; height: 300px; }
-    }
-  </style>
-
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
-</head>
-
-<body>
-  <div>
-    <h1>DSTAT LAYER7</h1>
-    <div class="subtitle">Real-time Traffic & Requests Monitoring</div>
-
-    <!-- Theme toggle (Light / Dark) -->
-    <div class="theme-toggle">
-      <label for="light-theme">Light</label>
-      <input type="radio" id="light-theme" name="theme" checked />
-      <label for="dark-theme">Dark</label>
-      <input type="radio" id="dark-theme" name="theme" />
-    </div>
-
-    <div id="chart">
-      <div id="top-left" class="resize-handle"></div>
-      <div id="top-right" class="resize-handle"></div>
-      <div id="bottom-left" class="resize-handle"></div>
-      <div id="bottom-right" class="resize-handle"></div>
-    </div>
-  </div>
-
-  <!-- Highcharts from a different CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/highcharts@11.0.0/highcharts.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/highcharts@11.0.0/modules/exporting.js"></script>
-
-  <script>
-    window.onload = () => {
-      let previous = null;
-
-      // Theme change logic
-      document.getElementById('light-theme').addEventListener('change', () => {
-        document.body.classList.remove('dark-theme');
-      });
-
-      document.getElementById('dark-theme').addEventListener('change', () => {
-        document.body.classList.add('dark-theme');
-      });
-
-      const charts = Highcharts.chart("chart", {
-        exporting: {
-          enabled: true,
-          buttons: {
-            contextButton: {
-              menuItems: [
-                'printChart',
-                'downloadPNG',
-                'downloadJPEG',
-                'downloadPDF',
-                'downloadSVG',
-              ]
-            }
-          }
-        },
-        chart: {
-          type: "area",
-          backgroundColor: "rgba(0, 0, 0, 0.1)",
-          style: {
-            fontFamily: "Arial, Helvetica, sans-serif",
-          },
-        },
+    const chart = Highcharts.chart("chart", {
+      chart: {
+        type: "spline",
+        animation: Highcharts.svg,
+        backgroundColor: "transparent",
+        marginRight: 10
+      },
+      title: {
+        text: "Real-time Traffic Monitor",
+        style: { color: "#333", fontSize: "20px" }
+      },
+      xAxis: {
+        type: 'datetime',
+        tickPixelInterval: 150,
+        labels: { style: { color: '#666' } }
+      },
+      yAxis: {
         title: {
-          text: "Real-time Traffic",
-          style: {
-            color: "#333", /* Light theme color */
-            fontSize: "24px",
-          },
+          text: "Requests / Sec",
+          style: { color: "#666" }
         },
-        xAxis: {
-          type: "datetime",
-          dateTimeLabelFormats: {
-            day: "%a",
-          },
-          labels: {
-            style: {
-              color: "#555", /* Light theme color */
-            },
-          },
-        },
-        yAxis: {
-          labels: {
-            style: {
-              color: "#555", /* Light theme color */
-            },
-          },
-          title: {
-            text: "Requests / Sec",
-            margin: 50,
-            style: {
-              color: "#333", /* Light theme color */
-            },
-          },
-        },
-        credits: {
-          enabled: false,
-        },
-        legend: {
-          useHTML: true,
-          symbolWidth: 0,
-          labelFormatter: function () {
-            return `<span style="color: #333;">${this.name}</span>`;
-          },
-        },
-        series: [
-          {
-            type: "area",
-            name: "Total Requests",
-            color: "rgba(0, 123, 255, 0.7)",
-            data: [],
-            marker: {
-              enabled: false,
-            },
-            lineWidth: 2,
-            fillColor: {
-              linearGradient: {
-                x1: 0,
-                y1: 0,
-                x2: 0,
-                y2: 1
-              },
-              stops: [
-                [0, 'rgba(0, 123, 255, 0.7)'],
-                [1, 'rgba(0, 123, 255, 0.3)'],
-              ]
-            },
-            fillOpacity: 0.5,
-            tooltip: {
-              headerFormat: '',
-              pointFormat: 'Requests: {point.y}'
-            }
-          },
-        ],
-      });
-
-      async function getData() {
-        try {
-          const response = await fetch("/nginx_status", {
-            method: "GET",
-            cache: "no-cache",
-          });
-          if (response.ok) {
-            const text = await response.text();
-
-            let current = 0;
-            let lastValid = 0;
-
-            const part = text.split(' ')[9];
-            const series = charts.series[0];
-            current = parseInt(part);
-
-            if (
-              (current > 0 && (current - previous) > 0 && (current - previous) < 990000000) ||
-              (current > 0 && (current - previous) > 0 && previous === null)
-            ) {
-              const shift = series.data.length > 40;
-
-              if (previous !== null) {
-                series.addPoint([Math.floor(Date.now()), current - previous], true, shift);
-              }
-
-              lastValid = current - previous;
-              previous = current;
-            } else {
-              previous = null;
-              console.log("Bad response");
-            }
-
-            setTimeout(getData, 1000);
-          } else {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-        } catch (err) {
-          console.log(err);
+        plotLines: [{
+          value: 0,
+          width: 1,
+          color: '#808080'
+        }],
+        labels: { style: { color: '#666' } }
+      },
+      tooltip: {
+        formatter: function () {
+          return '<b>' + this.series.name + '</b><br/>' +
+            Highcharts.dateFormat('%H:%M:%S', this.x) + '<br/>' +
+            Highcharts.numberFormat(this.y, 0) + ' req/s';
         }
-      }
+      },
+      legend: { enabled: false },
+      exporting: { enabled: false },
+      credits: { enabled: false },
+      series: [{
+        name: 'Traffic',
+        data: []
+      }]
+    });
 
-      (async () => {
-        await getData();
-      })();
+    function fetchData() {
+      fetch("/nginx_status")
+        .then(res => res.text())
+        .then(text => {
+          const part = text.split(' ')[9];
+          const current = parseInt(part);
+          const now = (new Date()).getTime();
 
-      // Resize chart logic
-      function makeResizable(elem, handle) {
-        $(handle).on("mousedown", function (e) {
-          const startWidth = elem.width();
-          const startHeight = elem.height();
-          const startX = e.pageX;
-          const startY = e.pageY;
-
-          $(document).on("mousemove", function (e) {
-            const newWidth = startWidth + e.pageX - startX;
-            const newHeight = startHeight + e.pageY - startY;
-            elem.width(newWidth);
-            elem.height(newHeight);
-            charts.setSize(newWidth, newHeight);
-          });
-
-          $(document).on("mouseup", function () {
-            $(document).off("mousemove mouseup");
-          });
+          if (!isNaN(current) && current > 0 && (previous === null || (current - previous > 0 && current - previous < 9999999))) {
+            const value = previous === null ? 0 : current - previous;
+            const series = chart.series[0];
+            const shift = series.data.length > 60;
+            series.addPoint([now, value], true, shift);
+            previous = current;
+          } else {
+            previous = null;
+          }
+        })
+        .catch(err => console.log("Fetch Error:", err))
+        .finally(() => {
+          setTimeout(fetchData, 1000);
         });
-      }
+    }
 
-      makeResizable($("#chart"), "#bottom-right");
-    };
-  </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93042e56ca7dfcf8',t:'MTc0NDY0Mzk2MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+    fetchData();
 
-</html>
+    function makeResizable(elem, handle) {
+      $(handle).on("mousedown", function (e) {
+        const startWidth = elem.width(), startHeight = elem.height();
+        const startX = e.pageX, startY = e.pageY;
+        $(document).on("mousemove", function (e) {
+          const newWidth = startWidth + e.pageX - startX;
+          const newHeight = startHeight + e.pageY - startY;
+          elem.width(newWidth);
+          elem.height(newHeight);
+          chart.setSize(newWidth, newHeight);
+        }).on("mouseup", function () {
+          $(document).off("mousemove mouseup");
+        });
+      });
+    }
+
+    makeResizable($("#chart"), "#bottom-right");
+  };
+</script>
