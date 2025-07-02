@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArrayCyber Anti-DDoS - Bảo Vệ Tuyệt Đối</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+
+        .contact-btn {
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            color: #0f0f23;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .contact-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 255, 255, 0.4);
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(0,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)" /></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-text h1 {
+            font-size: 3.5rem;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #ffffff, #00ffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+
+        .hero-text p {
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 255, 255, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            background: rgba(0, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #00ffff;
+            display: block;
+        }
+
+        .stat-label {
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 60px;
+            background: linear-gradient(45deg, #ffffff, #00ffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 128, 255, 0.1));
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+            transform: rotate(-45deg);
+            transition: all 0.5s ease;
+            opacity: 0;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+            animation: shimmer 1.5s ease-in-out;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(-45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(-45deg); }
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 255, 255, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #00ffff;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+
+        .feature-card p {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        /* Services Section */
+        .services {
+            padding: 100px 0;
+        }
+
+        .services-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .service-list {
+            list-style: none;
+        }
+
+        .service-item {
+            background: rgba(0, 255, 255, 0.1);
+            margin-bottom: 20px;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 4px solid #00ffff;
+            transition: all 0.3s ease;
+        }
+
+        .service-item:hover {
+            background: rgba(0, 255, 255, 0.2);
+            transform: translateX(10px);
+        }
+
+        .service-item h4 {
+            color: #00ffff;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* Contact Section */
+        .contact {
+            padding: 100px 0;
+            background: rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .contact-info {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 128, 255, 0.1));
+            padding: 60px;
+            border-radius: 30px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .telegram-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            color: #0f0f23;
+            padding: 20px 40px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            margin-top: 30px;
+        }
+
+        .telegram-link:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 255, 255, 0.4);
+        }
+
+        .telegram-icon {
+            font-size: 1.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+            
+            .services-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Cyber effects */
+        .cyber-text {
+            position: relative;
+        }
+
+        .cyber-text::before {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            color: #00ffff;
+            opacity: 0.5;
+            animation: glitch 2s infinite;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <div class="logo">ArrayCyber</div>
+                <a href="#contact" class="contact-btn">Liên Hệ Ngay</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="cyber-text" data-text="BẢO VỆ TUYỆT ĐỐI">BẢO VỆ TUYỆT ĐỐI</h1>
+                    <p>ArrayCyber Anti-DDoS - Giải pháp bảo mật hàng đầu chống lại các cuộc tấn công DDoS phức tạp. Bảo vệ hệ thống của bạn 24/7 với công nghệ AI tiên tiến.</p>
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">99.9%</span>
+                            <span class="stat-label">Uptime</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">1TB+</span>
+                            <span class="stat-label">Băng Thông</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">24/7</span>
+                            <span class="stat-label">Hỗ Trợ</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="floating">
+                    <div style="font-size: 15rem; text-align: center; color: rgba(0, 255, 255, 0.2);">🛡️</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">Tính Năng Vượt Trội</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h3>Phát Hiện Thông Minh</h3>
+                    <p>Hệ thống AI phân tích traffic theo thời gian thực, phát hiện và chặn các cuộc tấn công DDoS trong vòng 3 giây với độ chính xác 99.9%.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Bảo Vệ Đa Lớp</h3>
+                    <p>Kiến trúc bảo mật 7 lớp bao gồm: Network Layer, Transport Layer, Application Layer với khả năng chống chịu lên đến 10Tbps.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Tùy Chỉnh Linh Hoạt</h3>
+                    <p>Cấu hình rules tùy chỉnh cho từng loại tấn công: HTTP Flood, SYN Flood, UDP Flood, Slowloris và các vector tấn công mới nhất.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Giám Sát Realtime</h3>
+                    <p>Dashboard trực quan hiển thị tình trạng bảo mật realtime, thống kê tấn công, báo cáo chi tiết với API tích hợp đầy đủ.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌐</div>
+                    <h3>CDN Tích Hợp</h3>
+                    <p>Mạng lưới CDN toàn cầu với 200+ PoP, tăng tốc website lên 300% đồng thời cung cấp khả năng bảo vệ phân tán.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>SSL/WAF Advanced</h3>
+                    <p>Tích hợp SSL miễn phí, Web Application Firewall chống OWASP Top 10, Bot Protection và Rate Limiting thông minh.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="services">
+        <div class="container">
+            <div class="services-content">
+                <div>
+                    <h2 class="section-title" style="text-align: left; margin-bottom: 40px;">Dịch Vụ Chuyên Nghiệp</h2>
+                    <ul class="service-list">
+                        <li class="service-item">
+                            <h4>🔰 Anti-DDoS Basic</h4>
+                            <p>Bảo vệ cơ bản chống tấn công Layer 3/4, phù hợp website nhỏ và vừa. Băng thông lên đến 100Gbps, 99.9% uptime.</p>
+                        </li>
+                        <li class="service-item">
+                            <h4>⚔️ Anti-DDoS Pro</h4>
+                            <p>Bảo vệ toàn diện Layer 3-7, tích hợp WAF, Bot Protection. Băng thông lên đến 1Tbps, SLA 99.99%.</p>
+                        </li>
+                        <li class="service-item">
+                            <h4>🏆 Anti-DDoS Enterprise</h4>
+                            <p>Giải pháp dành cho doanh nghiệp lớn, tùy chỉnh hoàn toàn, dedicated support. Băng thông không giới hạn.</p>
+                        </li>
+                        <li class="service-item">
+                            <h4>🎮 Gaming Protection</h4>
+                            <p>Chuyên biệt cho game server, giảm độ trễ xuống dưới 10ms, chống lag và DC trong game.</p>
+                        </li>
+                        <li class="service-item">
+                            <h4>💼 Managed Security</h4>
+                            <p>Dịch vụ quản lý bảo mật 24/7 bởi team chuyên gia, monitoring, incident response, security consulting.</p>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <div style="background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 128, 255, 0.2)); padding: 40px; border-radius: 20px; border: 1px solid rgba(0, 255, 255, 0.3);">
+                        <h3 style="color: #00ffff; margin-bottom: 20px; font-size: 1.8rem;">Tại Sao Chọn ArrayCyber?</h3>
+                        <ul style="list-style: none; line-height: 2;">
+                            <li>✅ <strong>Kinh nghiệm 10+ năm</strong> trong lĩnh vực cybersecurity</li>
+                            <li>✅ <strong>Team chuyên gia</strong> được đào tạo bài bản tại Silicon Valley</li>
+                            <li>✅ <strong>Công nghệ AI</strong> độc quyền phát triển trong 5 năm</li>
+                            <li>✅ <strong>Hơn 10,000 khách hàng</strong> tin tưởng trên toàn thế giới</li>
+                            <li>✅ <strong>Giải thưởng Best Security</strong> năm 2023, 2024</li>
+                            <li>✅ <strong>Hỗ trợ 24/7</strong> bằng 12 ngôn ngữ khác nhau</li>
+                            <li>✅ <strong>SLA 99.99%</strong> với penalty đền bù thiệt hại</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="contact" id="contact">
+        <div class="container">
+            <div class="contact-info">
+                <h2 class="section-title">Liên Hệ Tư Vấn Miễn Phí</h2>
+                <p style="font-size: 1.2rem; margin-bottom: 30px; opacity: 0.9;">
+                    Đội ngũ chuyên gia ArrayCyber sẵn sàng tư vấn giải pháp bảo mật phù hợp nhất cho hệ thống của bạn. 
+                    Liên hệ ngay để nhận ưu đãi đặc biệt!
+                </p>
+                
+                <div style="background: rgba(0, 255, 255, 0.1); padding: 30px; border-radius: 15px; margin: 30px 0; border: 1px solid rgba(0, 255, 255, 0.3);">
+                    <h3 style="color: #00ffff; margin-bottom: 15px;">🎁 Ưu Đãi Đặc Biệt</h3>
+                    <p style="font-size: 1.1rem;">
+                        ✨ <strong>Miễn phí trial 7 ngày</strong><br>
+                        ✨ <strong>Giảm 50% phí setup</strong><br>
+                        ✨ <strong>Tư vấn 1-1 với chuyên gia</strong><br>
+                        ✨ <strong>Bảo hành dịch vụ 12 tháng</strong>
+                    </p>
+                </div>
+
+                <a href="https://t.me/Vanduy0982" class="telegram-link" target="_blank">
+                    <span class="telegram-icon">📱</span>
+                    <span>Telegram: @Vanduy0982</span>
+                </a>
+                
+                <div style="margin-top: 30px; opacity: 0.8;">
+                    <p>📧 Email: arraycybervn@gmail.com</p>
+                    <p>🌐 Website: arraycyber.com</p>
+                    <p>⏰ Hỗ trợ 24/7 - Response time < 5 phút</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Smooth scrolling for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Header background change on scroll
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('.header');
+            if (window.scrollY > 100) {
+                header.style.background = 'rgba(15, 15, 35, 0.98)';
+            } else {
+                header.style.background = 'rgba(15, 15, 35, 0.95)';
+            }
+        });
+
+        // Animate elements on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card, .service-item').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.8s ease';
+            observer.observe(el);
+        });
+
+        // Telegram link click tracking
+        document.querySelector('.telegram-link').addEventListener('click', function() {
+            console.log('Telegram contact clicked');
+        });
+    </script>
+</body>
+</html>
