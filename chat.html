@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnonyChat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @font-face {
+            font-family: 'Maple Mono';
+            src: url('/fonts/MapleMono.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        * {
+            font-family: 'Maple Mono', monospace !important;
+        }
+
+        /* Scrollbar styling */
+        #log::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #log::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #log::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        #log {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message {
+            animation: fadeIn 0.2s ease-out;
+        }
+        
+        .message:hover {
+            filter: brightness(110%);
+        }
+        
+        .action-button {
+            opacity: 0.7;
+            transition: all 0.2s;
+        }
+        
+        .action-button:hover {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+
+        /* Connection status indicators */
+        .connected-indicator {
+            background-color: rgba(74, 222, 128, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        .searching-indicator {
+            background-color: rgba(250, 204, 21, 0.2);
+        }
+
+        .disconnected-indicator {
+            background-color: rgba(248, 113, 113, 0.2);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(74, 222, 128, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+        }
+
+        /* Typing indicator */
+        .typing-dots {
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .typing-dots span {
+            width: 6px;
+            height: 6px;
+            margin: 0 1px;
+            background-color: #9CA3AF;
+            border-radius: 50%;
+            display: inline-block;
+            animation: typing-dots 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dots span:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing-dots {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-4px); }
+        }
+    </style>
+    <audio id="connect-sound" src="/sounds/activity.mp3" preload="auto"></audio>
+    <audio id="disconnect-sound" src="/sounds/activity.mp3" preload="auto"></audio>
+    <audio id="send-sound" src="/sounds/message.mp3" preload="auto"></audio>
+    <audio id="receive-sound" src="/sounds/message.mp3" preload="auto"></audio>
+</head>
+
+<body class="bg-gray-900 text-white flex items-center justify-center h-screen font-[Maple Mono] transition-colors duration-300">
+    <div class="w-full max-w-md p-4 space-y-3 bg-gray-800 rounded-lg shadow-lg">
+        <!-- Header with connection status -->
+        <div class="flex justify-between items-center">
+            <h1 class="text-xl font-semibold text-purple-300">AnonyChat</h1>
+            <div id="connection-status" class="flex items-center space-x-2">
+                <div class="w-3 h-3 rounded-full searching-indicator"></div>
+                <span class="text-xs text-gray-400">Đang tìm người lạ...</span>
+            </div>
+        </div>
+
+        <!-- Chat topic suggestion -->
+        <div id="chat-topic" class="text-xs text-center text-gray-400 italic py-1 hidden">
+            Gợi ý chủ đề: <span class="text-purple-300">Bạn thích loại nhạc nào?</span>
+        </div>
+
+        <!-- Chat log -->
+        <div id="log" class="h-64 overflow-y-auto bg-gray-700 rounded-lg p-3 space-y-2"></div>
+
+        <!-- Typing indicator -->
+        <div id="typing" class="text-gray-400 text-xs h-4 pl-1 flex items-center">
+            <div class="typing-dots hidden">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <!-- Message input -->
+        <div class="flex space-x-2">
+            <input id="msg" type="text" 
+                   class="flex-1 px-3 py-2 rounded-lg bg-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 transition" 
+                   placeholder="Type a message..." 
+                   autocomplete="off" />
+            <button id="send-btn" class="px-3 py-2 bg-purple-600 rounded-lg hover:bg-purple-700 transition disabled:opacity-50">
+                Gửi
+            </button>
+        </div>
+
+        <!-- Character counter -->
+        <div id="char-counter" class="text-xs text-right text-gray-500">
+            <span id="char-count">0</span>/250
+        </div>
+
+        <!-- Action buttons -->
+        <div class="flex justify-center space-x-4 pt-2">
+            <button id="disconnect-btn" class="action-button px-3 py-1 bg-red-600 rounded-lg text-sm hover:bg-red-700 transition">
+                Kết thúc chat
+            </button>
+            <button id="new-chat-btn" class="action-button px-3 py-1 bg-purple-600 rounded-lg text-sm hover:bg-purple-700 transition">
+                Chat mới
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center text-xs text-gray-500 pt-2">
+            Tin nhắn sẽ không được lưu trữ • Kết nối ẩn danh
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const log = document.getElementById('log');
+        const typingEl = document.getElementById('typing');
+        const typingDots = typingEl.querySelector('.typing-dots');
+        const input = document.getElementById('msg');
+        const sendBtn = document.getElementById('send-btn');
+        const disconnectBtn = document.getElementById('disconnect-btn');
+        const newChatBtn = document.getElementById('new-chat-btn');
+        const connectionStatus = document.getElementById('connection-status');
+        const statusIndicator = connectionStatus.querySelector('div');
+        const statusText = connectionStatus.querySelector('span');
+        const chatTopic = document.getElementById('chat-topic');
+        const charCounter = document.getElementById('char-counter');
+        const charCount = document.getElementById('char-count');
+
+        // WebSocket connection
+        const ws = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}`);
+
+        // State
+        let lastSent = "";
+        let isConnected = false;
+        let messageCount = 0;
+        const MAX_CHARS = 250;
+
+        // Topics for ice-breaking
+        const topics = [
+            "Bạn thích loại nhạc nào?",
+            "Điều gì làm bạn hạnh phúc nhất?",
+            "Nơi nào bạn muốn đến nhất?",
+            "Sở thích đặc biệt của bạn là gì?",
+            "Bạn có nuôi thú cưng không?",
+            "Món ăn yêu thích của bạn?",
+            "Bạn thích đọc sách không?",
+            "Bạn có chơi thể thao không?",
+            "Kỷ niệm đáng nhớ nhất của bạn?",
+            "Bạn thích mùa nào trong năm?"
+        ];
+
+        // Update connection status UI
+        function updateConnectionStatus(status) {
+            statusIndicator.className = 'w-3 h-3 rounded-full';
+            
+            switch(status) {
+                case 'connected':
+                    statusIndicator.classList.add('connected-indicator');
+                    statusText.textContent = 'Đã kết nối';
+                    chatTopic.classList.remove('hidden');
+                    break;
+                case 'searching':
+                    statusIndicator.classList.add('searching-indicator');
+                    statusText.textContent = 'Đang tìm người lạ...';
+                    chatTopic.classList.add('hidden');
+                    break;
+                case 'disconnected':
+                    statusIndicator.classList.add('disconnected-indicator');
+                    statusText.textContent = 'Ngắt kết nối';
+                    chatTopic.classList.add('hidden');
+                    break;
+            }
+        }
+
+        // Show a random chat topic
+        function showRandomTopic() {
+            const topic = topics[Math.floor(Math.random() * topics.length)];
+            chatTopic.querySelector('span').textContent = topic;
+        }
+
+        // WebSocket event handlers
+        ws.onopen = () => {
+            updateConnectionStatus('searching');
+            showRandomTopic();
+        };
+
+        ws.onclose = () => {
+            updateConnectionStatus('disconnected');
+            isConnected = false;
+        };
+
+        ws.onmessage = (e) => {
+            let msg;
+            try {
+                msg = JSON.parse(e.data);
+            } catch {
+                msg = {
+                    system: e.data
+                };
+            }
+
+            // Handle connection status changes
+            if (msg.system?.includes('Connected to a stranger')) {
+                isConnected = true;
+                updateConnectionStatus('connected');
+                document.getElementById('connect-sound')?.play();
+                messageCount = 0;
+                showRandomTopic();
+            }
+            
+            if (msg.system?.includes('disconnected')) {
+                isConnected = false;
+                updateConnectionStatus('disconnected');
+                document.getElementById('disconnect-sound')?.play();
+            }
+
+            // Handle text messages
+            if (msg.type === 'text') {
+                const soundId = msg.from === 'self' ? 'send-sound' : 'receive-sound';
+                document.getElementById(soundId)?.play();
+                
+                const isMine = msg.data === lastSent;
+                const messageContainer = document.createElement('div');
+                messageContainer.className = `message-container flex ${isMine ? 'justify-end' : 'justify-start'}`;
+                
+                const bubble = document.createElement('div');
+                bubble.className = `message max-w-[75%] w-fit px-3 py-2 my-1 rounded-lg text-sm ${isMine
+                    ? 'bg-blue-500 text-white rounded-br-none'
+                    : 'bg-gray-600 text-white rounded-bl-none'
+                }`;
+                bubble.textContent = msg.data;
+                
+                messageContainer.appendChild(bubble);
+                log.appendChild(messageContainer);
+                log.scrollTop = log.scrollHeight;
+                
+                if (!isMine) messageCount++;
+                
+                // Show topic suggestion after 3 messages if conversation is slow
+                if (messageCount === 3) {
+                    setTimeout(showRandomTopic, 3000);
+                }
+            }
+
+            // Handle typing indicator
+            if (msg.type === 'typing') {
+                typingDots.classList.remove('hidden');
+                clearTimeout(typingEl._clear);
+                typingEl._clear = setTimeout(() => {
+                    typingDots.classList.add('hidden');
+                }, 2000);
+            }
+
+            // Handle system messages
+            if (msg.system) {
+                const sys = document.createElement('div');
+                sys.className = 'text-gray-400 italic text-xs my-1 text-center';
+                sys.textContent = msg.system;
+                log.appendChild(sys);
+                log.scrollTop = log.scrollHeight;
+            }
+        };
+
+        // Typing indicator logic
+        let typingTimeout;
+        const sendTyping = () => {
+            if (ws.readyState === WebSocket.OPEN && isConnected) {
+                ws.send(JSON.stringify({
+                    type: 'typing'
+                }));
+            }
+        };
+        
+        const debounceTyping = () => {
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(sendTyping, 300);
+        };
+
+        // Character counter
+        input.addEventListener('input', () => {
+            const count = input.value.length;
+            charCount.textContent = count;
+            
+            if (count > MAX_CHARS) {
+                charCounter.classList.add('text-red-400');
+                sendBtn.disabled = true;
+            } else {
+                charCounter.classList.remove('text-red-400');
+                sendBtn.disabled = false;
+            }
+        });
+
+        // Send message
+        function sendMessage() {
+            const message = input.value.trim();
+            if (message && message.length <= MAX_CHARS) {
+                lastSent = message;
+                if (ws.readyState === WebSocket.OPEN && isConnected) {
+                    ws.send(JSON.stringify({
+                        type: 'text',
+                        data: message
+                    }));
+                }
+                input.value = '';
+                charCount.textContent = '0';
+            }
+        }
+
+        // Event listeners
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            } else {
+                debounceTyping();
+            }
+        });
+
+        sendBtn.addEventListener('click', sendMessage);
+
+        disconnectBtn.addEventListener('click', () => {
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'disconnect' }));
+            }
+        });
+
+        newChatBtn.addEventListener('click', () => {
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'new_chat' }));
+                log.innerHTML = '';
+                updateConnectionStatus('searching');
+            }
+        });
+
+        // Initial setup
+        updateConnectionStatus('searching');
+    </script>
+</body>
+
+</html>
